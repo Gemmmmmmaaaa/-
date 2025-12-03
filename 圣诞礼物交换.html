@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giftmas Exchange 🎄</title>
+    <style>
+        :root {
+            --red: #D42426;
+            --green: #165B33;
+            --gold: #F4D03F;
+            --white: #FFFFFF;
+            --snow: #F0F4F8;
+            --text: #2C3E50;
+            --radius: 16px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--green);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Snow Animation Canvas */
+        #snow-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Main Container */
+        .app-container {
+            background: var(--white);
+            width: 90%;
+            max-width: 450px;
+            height: 85vh;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header */
+        header {
+            padding: 24px;
+            text-align: center;
+            background: var(--red);
+            color: var(--white);
+        }
+
+        header h1 {
+            font-family: 'Georgia', serif;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Form Elements */
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--green);
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .btn-primary {
+            background: var(--green);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background: var(--gold);
+            color: var(--text);
+        }
+
+        .btn-text {
+            background: transparent;
+            color: var(--text);
+            text-decoration: underline;
+            font-size: 0.9rem;
+        }
+
+        /* List of Participants */
+        ul { list-style: none; }
+        
+        .participant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--snow);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            animation: popIn 0.3s ease;
+        }
+
+        .participant-item span { font-weight: 500; }
+        .remove-btn { color: var(--red); cursor: pointer; font-size: 1.2rem; }
+
+        /* Result Cards (Flip Effect) */
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            perspective: 1000px;
+            height: 80px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .card-front {
+            background: var(--red);
+            color: white;
+            justify-content: space-between;
+        }
+
+        .card-back {
+            background: var(--gold);
+            color: var(--text);
+            transform: rotateY(180deg);
+            justify-content: center;
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+        
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #888;
+            margin-top: 40px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="snow-canvas"></canvas>
+
+    <div class="app-container">
+        <header>
+            <h1>Giftmas Exchange 🎄</h1>
+            <p id="status-text">Add your friends to start!</p>
+        </header>
+
+        <!-- SCREEN 1: SETUP -->
+        <div id="setup-screen" class="content">
+            <div class="input-group">
+                <input type="text" id="name-input" placeholder="Enter name..." onkeypress="handleEnter(event)">
+                <button class="btn-primary" onclick="addParticipant()">Add</button>
+            </div>
+
+            <div id="list-container">
+                <p class="empty-state" id="empty-msg">No elves added yet.</p>
+                <ul id="participant-list"></ul>
+            </div>
+
+            <div style="margin-top: auto; text-align: center;">
+                <p style="font-size: 0.8rem; color:#888; margin-bottom: 10px;">Min 3 people required</p>
+                <button class="btn-secondary" style="width: 100%;" onclick="startExchange()">🎁 Shuffle & Draw!</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: RESULTS -->
+        <div id="result-screen" class="content hidden">
+            <p style="text-align: center; margin-bottom: 15px;">Pass the device around. Click your name to reveal who you are buying for!</p>
+            <div id="result-grid" class="result-grid"></div>
+            
+            <div style="margin-top: auto; text-align: center;">
+                <button class="btn-text" onclick="resetApp()">Start Over</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIC ---
+        let participants = [];
+        
+        function handleEnter(e) {
+            if (e.key === 'Enter') addParticipant();
+        }
+
+        function addParticipant() {
+            const input = document.getElementById('name-input');
+            const name = input.value.trim();
+            
+            if (name) {
+                participants.push(name);
+                renderList();
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function removeParticipant(index) {
+            participants.splice(index, 1);
+            renderList();
+        }
+
+        function renderList() {
+            const list = document.getElementById('participant-list');
+            const emptyMsg = document.getElementById('empty-msg');
+            list.innerHTML = '';
+
+            if (participants.length === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+                participants.forEach((name, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'participant-item';
+                    li.innerHTML = `
+                        <span>🎅 ${name}</span>
+                        <span class="remove-btn" onclick="removeParticipant(${index})">&times;</span>
+                    `;
+                    list.appendChild(li);
+                });
+            }
+        }
+
+        function startExchange() {
+            if (participants.length < 3) {
+                alert("You need at least 3 elves to play!");
+                return;
+            }
+
+            // Secret Santa Algorithm (Derangement)
+            let givers = [...participants];
+            let receivers = [...participants];
+            let isValid = false;
+
+            // Shuffle until no one is assigned themselves
+            while (!isValid) {
+                receivers.sort(() => Math.random() - 0.5);
+                isValid = givers.every((giver, i) => giver !== receivers[i]);
+            }
+
+            renderResults(givers, receivers);
+            
+            // Switch Screens
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('status-text').innerText = "Tap your card to reveal!";
+        }
+
+        function renderResults(givers, receivers) {
+            const grid = document.getElementById('result-grid');
+            grid.innerHTML = '';
+
+            givers.forEach((giver, i) => {
+                const receiver = receivers[i];
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = function() {
+                    this.classList.toggle('flipped');
+                };
+
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <span>🎁 For: ${giver}</span>
+                            <span style="font-size: 0.8rem; opacity: 0.8;">Tap to see</span>
+                        </div>
+                        <div class="card-back">
+                            You are buying for <strong>&nbsp;${receiver}</strong>!
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function resetApp() {
+            participants = [];
+            renderList();
+            document.getElementById('setup-screen').classList.remove('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('status-text').innerText = "Add your friends to start!";
+        }
+
+        // --- SNOW EFFECT (Canvas) ---
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let flakes = [];
+
+        function initSnow() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            flakes = [];
+            for (let i = 0; i < 100; i++) {
+                flakes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 3 + 1,
+                    d: Math.random() * 1 + 0.5 // density/speed
+                });
+            }
+        }
+
+        function drawSnow() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+            ctx.beginPath();
+            for (let i = 0; i < flakes.length; i++) {
+                let f = flakes[i];
+                ctx.moveTo(f.x, f.y);
+                ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+            }
+            ctx.fill();
+            moveSnow();
+        }
+
+        function moveSnow() {
+            for (let i = 0; i < flakes.length; i++) {
+                let f = flakes[i];
+                f.y += Math.pow(f.d, 2) + 1;
+                
+                if (f.y > height) {
+                    flakes[i] = { x: Math.random() * width, y: 0, r: f.r, d: f.d };
+                }
+            }
+        }
+
+        setInterval(drawSnow, 30);
+        window.addEventListener('resize', initSnow);
+        initSnow();
+
+    </script>
+</body>
+</html>
