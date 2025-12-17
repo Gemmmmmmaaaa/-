@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VisCom Student Survival Test | 视传生生存检测</title>
     <style>
         :root {
@@ -16,7 +16,7 @@
             --mono-font: "Menlo", "Courier New", monospace;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: var(--font-stack);
@@ -37,7 +37,7 @@
             max-width: 600px;
             background: var(--card-bg);
             border: 2px solid #000;
-            box-shadow: 8px 8px 0px #000; /* 这种硬阴影很符合设计系审美 */
+            box-shadow: 8px 8px 0px #000;
             overflow: hidden;
             position: relative;
             min-height: 600px;
@@ -57,7 +57,7 @@
             height: 100%;
             background: var(--accent-color);
             width: 0%;
-            transition: width 0.3s steps(10); /* 像素感过渡 */
+            transition: width 0.3s steps(10);
         }
 
         .content-area {
@@ -81,6 +81,7 @@
             font-size: 13px;
             margin-bottom: 30px;
             background: #FFFAEA;
+            line-height: 1.6;
         }
         .warning-box strong { display: block; margin-bottom: 8px; font-size: 14px; }
 
@@ -92,13 +93,18 @@
             font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.1s;
+            transition: transform 0.1s;
             border-radius: 50px;
         }
-        .btn-start:hover { background: var(--accent-color); transform: scale(1.02); }
         .btn-start:active { transform: scale(0.95); }
 
-        /* 2. 模拟加载 (Terminal) */
+        /* 仅在电脑端才有 Hover 效果，移动端禁用 */
+        @media (hover: hover) {
+            .btn-start:hover { background: var(--accent-color); transform: scale(1.02); }
+            .option-card:hover { border-color: #000; background: #F7F7F7; transform: translateX(5px); }
+        }
+
+        /* 2. 模拟加载 */
         .loading-screen {
             display: none;
             background: #000;
@@ -129,9 +135,24 @@
             font-weight: 500;
             font-size: 15px;
             border-radius: 8px;
+            /* 禁止文字被选中 */
+            user-select: none; 
+            -webkit-user-select: none;
         }
-        .option-card:hover { border-color: #000; background: #F7F7F7; transform: translateX(5px); }
-        .option-card:active { background: #000; color: #fff; border-color: #000; }
+
+        /* 移动端点击瞬间的高亮反馈 */
+        .option-card:active {
+            background: #F0F0F0;
+            transform: scale(0.98);
+        }
+
+        /* 选中后的样式 (由JS控制) */
+        .option-card.selected {
+            background: #000 !important;
+            color: #fff !important;
+            border-color: #000 !important;
+            transform: translateX(5px);
+        }
 
         /* 4. 结果页 */
         .result-container { display: none; text-align: center; }
@@ -147,8 +168,10 @@
 
         @media (max-width: 480px) {
             .container { height: 100vh; border: none; border-radius: 0; box-shadow: none; }
-            .content-area { padding: 20px; }
+            .content-area { padding: 25px 20px; }
             h1 { font-size: 28px; }
+            .q-text { font-size: 18px; }
+            .option-card { padding: 15px; font-size: 14px; }
         }
     </style>
 </head>
@@ -163,7 +186,7 @@
         <div class="welcome-screen" id="view-welcome">
             <div class="hero-emoji">👁️🧠💻</div>
             <h1>视传生<br>生存状态检测</h1>
-            <div class="subtitle">v7.0_Beta_Final_Revise.html</div>
+            <div class="subtitle">v7.1_Mobile_Fixed.html</div>
             
             <div class="warning-box">
                 <strong>⚠️ 适用人群：视觉传达 / 数字媒体 / 艺术设计</strong>
@@ -214,7 +237,6 @@
     ];
 
     // --- 15道 视传生专属题库 ---
-    // score: { art: 艺术/感性/混乱, logic: 逻辑/规范/UI, global: 理论/深造/概念 }
     const questions = [
         {
             q: "Q1. 电脑桌面上的文件命名，你是哪一派？",
@@ -357,6 +379,7 @@
     
     let currentStep = 0;
     let scores = { art: 0, logic: 0, global: 0 };
+    let isProcessing = false; // 防止重复点击
 
     function startLoading() {
         document.getElementById('view-welcome').style.display = 'none';
@@ -398,27 +421,37 @@
         document.getElementById('q-text').innerText = qData.q;
         
         const optionsHtml = qData.options.map((opt, idx) => `
-            <div class="option-card" onclick="selectOption(${idx})">
+            <div class="option-card" onclick="selectOption(this, ${idx})">
                 ${opt.text}
             </div>
         `).join('');
         document.getElementById('q-options').innerHTML = optionsHtml;
+        isProcessing = false; // 重置锁
     }
 
-    function selectOption(idx) {
+    function selectOption(element, idx) {
+        if (isProcessing) return; // 如果正在跳转中，禁止点击
+        isProcessing = true;
+
+        // 1. 添加选中样式 (Visual Feedback)
+        element.classList.add('selected');
+
+        // 2. 计分
         const s = questions[currentStep].options[idx].scores;
         scores.art += s.art;
         scores.logic += s.logic;
         scores.global += s.global;
 
-        currentStep++;
-
-        if (currentStep >= questions.length) {
-            document.getElementById('progress').style.width = '100%';
-            showResult();
-        } else {
-            renderQuestion();
-        }
+        // 3. 延迟跳转，让用户看到选中效果
+        setTimeout(() => {
+            currentStep++;
+            if (currentStep >= questions.length) {
+                document.getElementById('progress').style.width = '100%';
+                showResult();
+            } else {
+                renderQuestion();
+            }
+        }, 300); // 300ms 延迟
     }
 
     // --- 结果计算 (学生版逻辑) ---
@@ -428,40 +461,27 @@
 
         let rType, rTitle, rDesc, rAbroad;
 
-        // 1. 学术/深造大神 (Global >= 18)
         if (scores.global >= 18) {
             rType = "THE ACADEMIC";
             rTitle = "学院派·思辨哲学家";
             rDesc = "你可能是全班唯一认真听《设计史》的人。你关注设计的社会意义多过视觉表现。国内的功利教育环境真的委屈你了。你天生适合去 RCA, UAL 或 耶鲁 读研，研究那些听起来很玄乎但很高级的课题。";
             rAbroad = "✈️ <strong>深造建议：必须出国！</strong> 国内环境容不下你的脑洞。快去准备作品集吧！";
-        }
-        
-        // 2. 卷王/UI大厂预备役 (Logic > Art + 5)
-        else if (scores.logic > scores.art + 5) {
+        } else if (scores.logic > scores.art + 5) {
             rType = "THE SYSTEMIZER";
             rTitle = "像素秩序·大厂卷王";
             rDesc = "你是小组作业的大腿，文件管理的洁癖患者。你痛恨乱七八糟的图层。你非常适合做 UI/UX 或 B端产品设计。你的未来在互联网大厂，年薪可观，虽然头发可能保不住。";
             rAbroad = "💼 <strong>深造建议：以就业为导向。</strong> 除非去美国学 HCI (人机交互)，否则不如直接去大厂实习。";
-        }
-
-        // 3. 野生艺术家 (Art > Logic + 5)
-        else if (scores.art > scores.logic + 5) {
+        } else if (scores.art > scores.logic + 5) {
             rType = "THE ARTIST";
             rTitle = "野生天才·偏科战神";
             rDesc = "你经常迟到，作业经常踩点交，但你的作品总能让老师眼前一亮。你靠直觉做设计，逻辑对你来说是枷锁。别去大厂做螺丝钉，去画插画、做动态视觉、或者搞独立品牌吧！";
             rAbroad = "🌍 <strong>深造建议：看城市氛围。</strong> 适合去伦敦、柏林这种艺术氛围浓厚的地方游学。";
-        }
-
-        // 4. 现实主义者/想转行 (Global <= -3)
-        else if (scores.global <= -3) {
+        } else if (scores.global <= -3) {
             rType = "THE REALIST";
             rTitle = "人间清醒·想转行";
             rDesc = "你早就看透了设计专业的坑：熬夜多、钱少、甲方事多。你学设计可能纯属误会。你现在只想搞钱，或者考个编制上岸。你可能是班里活得最通透的人。";
             rAbroad = "🙅 <strong>深造建议：大可不必。</strong> 别浪费钱读水硕了，省下钱来理财或考公吧。";
-        }
-
-        // 5. 六边形战士 (默认)
-        else {
+        } else {
             rType = "THE ALL-ROUNDER";
             rTitle = "六边形战士·保研苗子";
             rDesc = "你的综测分应该挺高的。你既能画图，又能写论文，还能做 Pre。你是老师眼中的好学生。你的适应力很强，无论去哪里都能混得不错。";
