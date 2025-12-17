@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visual Soul Dev. | 设计师成分终极检测</title>
+    <title>VisCom Student Survival Test | 视传生生存检测</title>
     <style>
         :root {
-            --bg-color: #F2F4F6;
+            --bg-color: #F0F0F2;
             --card-bg: #FFFFFF;
-            --text-main: #1D1D1F;
-            --text-sub: #86868B;
-            --accent-blue: #0071E3;
-            --accent-purple: #5E5CE6;
-            --accent-warning: #FF9F0A;
-            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
-            --mono-font: "SF Mono", "Menlo", "Courier New", monospace;
+            --text-main: #000000;
+            --text-sub: #666666;
+            --accent-color: #0044FF; /* 国际克莱因蓝 */
+            --accent-neon: #CCFF00; /* 酸性绿 */
+            --font-stack: "Helvetica Neue", Helvetica, "PingFang SC", sans-serif;
+            --mono-font: "Menlo", "Courier New", monospace;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,381 +27,328 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            background-image: radial-gradient(#ddd 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
-        /* 容器动画 */
+        /* 容器 */
         .container {
             width: 100%;
-            max-width: 640px;
+            max-width: 600px;
             background: var(--card-bg);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border: 2px solid #000;
+            box-shadow: 8px 8px 0px #000; /* 这种硬阴影很符合设计系审美 */
             overflow: hidden;
             position: relative;
             min-height: 600px;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
+            border-radius: 12px;
         }
 
         /* 顶部进度条 */
-        .progress-container {
-            height: 6px;
-            background: #F5F5F7;
+        .progress-bar {
+            height: 8px;
+            background: #fff;
+            border-bottom: 2px solid #000;
             width: 100%;
         }
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            background: var(--accent-color);
             width: 0%;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.3s steps(10); /* 像素感过渡 */
         }
 
-        /* 内容区域 */
         .content-area {
             flex: 1;
-            padding: 40px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        /* 1. 欢迎页 (梗密集区) */
+        /* 1. 欢迎页 */
         .welcome-screen { text-align: center; }
-        .emoji-header { font-size: 64px; margin-bottom: 20px; animation: bounce 2s infinite; }
-        .app-title { font-size: 32px; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
-        .app-subtitle { font-size: 16px; color: var(--text-sub); margin-bottom: 30px; }
+        .hero-emoji { font-size: 70px; margin-bottom: 20px; display:inline-block; animation: shake 3s infinite; }
+        h1 { font-size: 36px; font-weight: 900; line-height: 1.1; margin-bottom: 10px; letter-spacing: -1px; }
+        .subtitle { font-size: 14px; font-family: var(--mono-font); color: #666; margin-bottom: 30px; background: #eee; display: inline-block; padding: 5px 10px; }
         
         .warning-box {
-            background: #FFF8E6;
-            border: 1px solid #FFE58F;
-            border-radius: 12px;
+            border: 1px dashed #000;
             padding: 20px;
-            font-size: 14px;
-            color: #8C6D1F;
             text-align: left;
+            font-size: 13px;
             margin-bottom: 30px;
-            line-height: 1.6;
+            background: #FFFAEA;
         }
+        .warning-box strong { display: block; margin-bottom: 8px; font-size: 14px; }
 
-        .btn-main {
-            background: var(--text-main);
+        .btn-start {
+            background: #000;
             color: #fff;
             border: none;
-            padding: 18px 45px;
+            padding: 18px 40px;
             font-size: 18px;
-            font-weight: 600;
-            border-radius: 50px;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.1s;
+            border-radius: 50px;
         }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-        .btn-main:active { transform: scale(0.96); }
+        .btn-start:hover { background: var(--accent-color); transform: scale(1.02); }
+        .btn-start:active { transform: scale(0.95); }
 
-        /* 2. 模拟加载页 */
+        /* 2. 模拟加载 (Terminal) */
         .loading-screen {
             display: none;
-            text-align: left;
+            background: #000;
+            color: #0f0;
             font-family: var(--mono-font);
-            font-size: 13px;
-            color: var(--text-sub);
-            padding: 0 20px;
-        }
-        .terminal-line { margin-bottom: 8px; opacity: 0; animation: typeIn 0.2s forwards; }
-        .highlight { color: var(--accent-blue); font-weight: bold; }
-        .error-text { color: var(--accent-warning); }
-
-        /* 3. 问题卡片 */
-        .quiz-container { display: none; animation: fadeIn 0.4s ease; }
-        .question-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
+            padding: 30px;
+            height: 100%;
             font-size: 12px;
-            color: var(--text-sub);
-            font-weight: 600;
-            text-transform: uppercase;
+            line-height: 1.8;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow-y: auto;
         }
-        .question-text {
-            font-size: 22px;
-            font-weight: 700;
-            line-height: 1.4;
-            margin-bottom: 30px;
-            color: var(--text-main);
-        }
-        .options-grid { display: grid; gap: 12px; }
+        .log-line { margin-bottom: 5px; opacity: 0; animation: fadeTyping 0.1s forwards; }
+
+        /* 3. 问题页 */
+        .quiz-container { display: none; animation: slideIn 0.4s ease; }
+        .q-tag { font-family: var(--mono-font); font-size: 12px; color: var(--accent-color); font-weight: bold; margin-bottom: 15px; display: block; }
+        .q-text { font-size: 20px; font-weight: 800; line-height: 1.5; margin-bottom: 25px; }
+        
         .option-card {
-            background: #F5F5F7;
-            padding: 18px 20px;
-            border-radius: 14px;
+            background: #fff;
+            border: 2px solid #eee;
+            padding: 15px 20px;
+            margin-bottom: 12px;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 15px;
             font-weight: 500;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
+            font-size: 15px;
+            border-radius: 8px;
         }
-        .option-card:hover { background: #fff; border-color: var(--text-main); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .option-card:active { background: #E5E5E5; }
+        .option-card:hover { border-color: #000; background: #F7F7F7; transform: translateX(5px); }
+        .option-card:active { background: #000; color: #fff; border-color: #000; }
 
         /* 4. 结果页 */
-        .result-container { display: none; text-align: center; animation: slideUp 0.6s ease; }
-        .result-icon { font-size: 60px; margin-bottom: 10px; }
-        .result-type { font-size: 12px; font-weight: 800; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
-        .result-title { font-size: 34px; font-weight: 900; margin-bottom: 25px; line-height: 1.2; }
-        
-        .result-body {
-            background: #F9F9F9;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: left;
-            margin-bottom: 25px;
-            font-size: 15px;
-            line-height: 1.7;
-            color: #333;
-        }
-        
-        .abroad-card {
-            border: 2px dashed var(--accent-blue);
-            background: #F0F7FF;
-            padding: 20px;
-            border-radius: 14px;
-            color: #0044CC;
-            font-size: 14px;
-            text-align: left;
-            position: relative;
-        }
-        .abroad-card::before {
-            content: "留学鉴定";
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            background: #fff;
-            padding: 0 10px;
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--accent-blue);
-        }
+        .result-container { display: none; text-align: center; }
+        .res-badge { background: #000; color: #fff; padding: 5px 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 15px; border-radius: 20px; }
+        .res-title { font-size: 32px; font-weight: 900; margin-bottom: 20px; line-height: 1.2; }
+        .res-desc { text-align: left; background: #F2F2F2; padding: 25px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; line-height: 1.6; }
+        .res-abroad { border: 2px solid var(--accent-color); padding: 15px; color: var(--accent-color); font-weight: bold; margin-bottom: 20px; border-radius: 10px; font-size: 14px;}
 
-        /* 动画关键帧 */
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        @keyframes typeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* 动画 */
+        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(10deg); } 75% { transform: rotate(-10deg); } }
+        @keyframes fadeTyping { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         @media (max-width: 480px) {
-            .content-area { padding: 25px; }
-            .emoji-header { font-size: 50px; }
-            .question-text { font-size: 18px; }
-            .app-title { font-size: 26px; }
+            .container { height: 100vh; border: none; border-radius: 0; box-shadow: none; }
+            .content-area { padding: 20px; }
+            h1 { font-size: 28px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="progress-container"><div class="progress-fill" id="progress"></div></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 
     <div class="content-area">
         
         <!-- 1. 欢迎页 -->
         <div class="welcome-screen" id="view-welcome">
-            <div class="emoji-header">👁️🎨🧠</div>
-            <h1 class="app-title">视觉设计师<br>终极成分检测 (V5.0)</h1>
-            <p class="app-subtitle">Scanning your pixel DNA...</p>
+            <div class="hero-emoji">👁️🧠💻</div>
+            <h1>视传生<br>生存状态检测</h1>
+            <div class="subtitle">v7.0_Beta_Final_Revise.html</div>
             
             <div class="warning-box">
-                <strong>⚠️ 用户协议 (User Agreement)：</strong>
-                <br>• 本测试适用于：被毕设折磨的大学生、被甲方折磨的社畜。
-                <br>• 警告：可能会精准踩中你的痛点。
-                <br>• 建议：测试前请先保存好手中的 PSD 文件。
+                <strong>⚠️ 适用人群：视觉传达 / 数字媒体 / 艺术设计</strong>
+                • 本测试包含：毕设焦虑、打印店色差、甲方审美等敏感内容。
+                <br>• 可能会引起心率过速或想要“退学”的冲动。
+                <br>• 建议在非 Deadline 期间进行测试。
             </div>
 
-            <button class="btn-main" onclick="startLoadingSequence()">启动检测程序</button>
+            <button class="btn-start" onclick="startLoading()">开始显影</button>
         </div>
 
-        <!-- 2. 模拟加载页 -->
+        <!-- 2. Terminal 加载 -->
         <div class="loading-screen" id="view-loading">
-            <!-- JS 动态插入 -->
+            <!-- JS 写入日志 -->
         </div>
 
-        <!-- 3. 答题页 -->
+        <!-- 3. 问题区 -->
         <div class="quiz-container" id="view-quiz">
-            <div class="question-meta">
-                <span>Question <span id="q-num">1</span>/15</span>
-                <span id="q-category">SCENARIO</span>
-            </div>
-            <div class="question-text" id="q-text"></div>
-            <div class="options-grid" id="q-options"></div>
+            <span class="q-tag">FILE: QUESTION_<span id="q-num">01</span></span>
+            <div class="q-text" id="q-text"></div>
+            <div id="q-options"></div>
         </div>
 
-        <!-- 4. 结果页 -->
+        <!-- 4. 结果区 -->
         <div class="result-container" id="view-result">
-            <div class="result-icon" id="res-icon">✨</div>
-            <div class="result-type" id="res-type">ARCHETYPE</div>
-            <h2 class="result-title" id="res-title">Title</h2>
-            
-            <div class="result-body" id="res-desc"></div>
-            <div class="abroad-card" id="res-abroad"></div>
-
-            <button class="btn-main" onclick="location.reload()" style="margin-top:25px; background:#fff; color:#000; border:1px solid #ddd;">再测一次 (CMD+R)</button>
+            <div class="res-badge" id="res-type">TYPE</div>
+            <h2 class="res-title" id="res-title"></h2>
+            <div class="res-desc" id="res-desc"></div>
+            <div class="res-abroad" id="res-abroad"></div>
+            <button class="btn-start" onclick="location.reload()" style="font-size:14px; padding:12px 30px;">CMD+Z (重测)</button>
         </div>
 
     </div>
 </div>
 
 <script>
-    // --- 梗味儿加载日志 ---
-    const loadingLines = [
-        "正在连接 Adobe Creative Cloud (无响应)...",
-        "正在检测发际线高度与黑眼圈深度...",
-        "正在扫描桌面上的 '最终版_v12_打死不改.zip'...",
-        "检测到体内的冰美式浓度：98%...",
-        "正在尝试理解导师/甲方的“五彩斑斓的黑”...",
-        "正在计算期末挂科与年终奖归零的概率...",
-        "加载中：Behance, Pinterest, Dribbble...",
-        "Error: 钱包余额不足，无法加载 '财务自由' 模块...",
-        "系统校准完成。灵魂显影启动。"
+    // --- 视传生专属加载日志 ---
+    const logs = [
+        "Initializing Adobe Creative Cloud (Not Responding)...",
+        "Loading fonts... [Comic Sans] detected and deleted.",
+        "正在检测发际线后移速度...",
+        "正在连接打印店老板的蓝牙...",
+        "RGB转CMYK中... 颜色已变灰...",
+        "正在编造毕设的设计理念...",
+        "正在计算综测排名...",
+        "正在尝试理解老师说的“设计感”...",
+        "System ready. Welcome, Designer."
     ];
 
-    // --- 15道 混合双打题库 (学生+职场) ---
-    // score: { art: 感性/视觉, logic: 逻辑/规范, global: 理论/深造 }
+    // --- 15道 视传生专属题库 ---
+    // score: { art: 艺术/感性/混乱, logic: 逻辑/规范/UI, global: 理论/深造/概念 }
     const questions = [
         {
-            q: "Q1. 面对电脑屏幕上乱七八糟的图层，你的态度是？",
+            q: "Q1. 电脑桌面上的文件命名，你是哪一派？",
             options: [
-                { text: "A. 每一个都命名、编组、标色。我是处女座强迫症。", scores: { art: 0, logic: 3, global: 0 } },
-                { text: "B. 只要导出来的图是对的，图层乱成垃圾场也无所谓。", scores: { art: 3, logic: -1, global: 0 } },
-                { text: "C. 习惯用“自动布局(Auto Layout)”和组件，图层是什么？", scores: { art: 0, logic: 3, global: 1 } },
-                { text: "D. 试图整理，但在“未标题-1”出现后彻底放弃。", scores: { art: 1, logic: 0, global: 0 } }
+                { text: "A. `未标题-1`, `未标题-2`, `asd.jpg`, `111.png` (随缘派)", scores: { art: 3, logic: -2, global: 0 } },
+                { text: "B. `作业_v1`, `作业_v2`, `作业_打死不改`, `作业_打印版` (发疯派)", scores: { art: 2, logic: 0, global: 0 } },
+                { text: "C. `2025_CourseA_Project_Final_v1.0` (学霸规范派)", scores: { art: 0, logic: 3, global: 1 } },
+                { text: "D. 桌面？我没有桌面，全是文件把壁纸挡住了。", scores: { art: 1, logic: -1, global: 0 } }
             ]
         },
         {
-            q: "Q2. 导师/甲方说：“这个设计感觉有点空，再丰富一下。” 你会？",
+            q: "Q2. 去打印店打海报，看到出来的颜色灰了一大截 (RGB变CMYK)，你会？",
             options: [
-                { text: "A. 加底纹、加噪点、加光晕，只要热闹就行。", scores: { art: 1, logic: 1, global: -1 } },
-                { text: "B. 内心翻白眼，然后解释这叫“负空间” (Negative Space)。", scores: { art: 1, logic: 1, global: 3 } },
-                { text: "C. 把 Logo 放大，字放大，填满每一个角落。", scores: { art: 0, logic: 0, global: -2 } },
-                { text: "D. 重新审视信息层级，也许是视觉重心不稳导致的。", scores: { art: 0, logic: 3, global: 0 } }
+                { text: "A. 当场崩溃，这就是我毕设不及格的原因。", scores: { art: 1, logic: 0, global: 0 } },
+                { text: "B. 淡定。早就预料到了，我做图时一直开着色域警告。", scores: { art: 0, logic: 3, global: 0 } },
+                { text: "C. 跟老板说：“这是复古做旧风格，故意这样的。” (强行解释)", scores: { art: 2, logic: 1, global: 2 } },
+                { text: "D. 只要不偏色成绿色，我就能忍。", scores: { art: 0, logic: 1, global: -1 } }
             ]
         },
         {
-            q: "Q3. 如果让你为了毕设/项目熬夜通宵，通常是因为？",
+            q: "Q3. 老师布置了一个作业：“设计一个关于未来的字体”，你会？",
             options: [
-                { text: "A. 软件崩了，文件没保存 (哭着重做)。", scores: { art: 1, logic: 0, global: 0 } },
-                { text: "B. 突然来了灵感，觉得一定要把这个酷炫的效果调出来。", scores: { art: 4, logic: 0, global: 1 } },
-                { text: "C. 白天一直在拖延，deadline 到了才开始动工。", scores: { art: 2, logic: -1, global: -1 } },
-                { text: "D. 为了死磕一个交互逻辑或者代码 bug。", scores: { art: 0, logic: 4, global: 1 } }
+                { text: "A. 把现在的黑体字拉伸、扭曲、加液化 (Acid风格)。", scores: { art: 3, logic: -1, global: 1 } },
+                { text: "B. 用 Processing 或 Python 写代码生成随机字形。", scores: { art: 0, logic: 4, global: 2 } },
+                { text: "C. 乖乖手绘一套美术字，然后扫描进电脑描边。", scores: { art: 2, logic: 1, global: 0 } },
+                { text: "D. 上网找个冷门字体下载，改改笔画交差。", scores: { art: 0, logic: 0, global: -2 } }
             ]
         },
         {
-            q: "Q4. 【深造判定】如果你有一年时间Gap Year，不考虑钱，你会？",
+            q: "Q4. 【深造判定】《中外设计史》这种纯理论课，你的状态是？",
             options: [
-                { text: "A. 去伦敦或纽约看展，沉浸在当代艺术的海洋里。", scores: { art: 1, logic: 0, global: 5 } },
-                { text: "B. 在家接单搞钱，或者开个网店卖自己的插画周边。", scores: { art: 2, logic: 2, global: -1 } },
-                { text: "C. 学习 Python, 3D 建模，或者 AI 炼丹技术。", scores: { art: 0, logic: 3, global: 1 } },
-                { text: "D. 躺平。去大理晒太阳，治愈我的精神内耗。", scores: { art: 1, logic: 0, global: 0 } }
+                { text: "A. 睡得昏天黑地，不知道包豪斯是啥。", scores: { art: 0, logic: 0, global: -2 } },
+                { text: "B. 在下面偷偷画自己的图/修图。", scores: { art: 2, logic: 0, global: 0 } },
+                { text: "C. 听得很认真，觉得这些主义和流派很有意思。", scores: { art: 0, logic: 1, global: 5 } },
+                { text: "D. 考前突击背书，为了刷绩点保研。", scores: { art: 0, logic: 3, global: -1 } }
             ]
         },
         {
-            q: "Q5. 小组作业里，你通常扮演什么角色？",
+            q: "Q5. 做小组作业 (Group Project) 时，你最怕遇到哪种队友？",
             options: [
-                { text: "A. 大腿。全组的图都是我画的，他们只配给我带饭。", scores: { art: 2, logic: 2, global: 0 } },
-                { text: "B. Pre之神。我不做图，但我能把 60 分的作业吹成 90 分。", scores: { art: 0, logic: 1, global: 3 } },
-                { text: "C. 隐形人。只要别让我上去讲，让我干啥苦力都行。", scores: { art: 1, logic: 1, global: 0 } },
-                { text: "D. 逻辑怪。负责前期的用户调研和数据分析。", scores: { art: 0, logic: 4, global: 1 } }
+                { text: "A. “我不懂软件，我负责找资料吧” (最后找的全是百度图片)。", scores: { art: 1, logic: 1, global: 0 } },
+                { text: "B. 审美极为恐怖，做出来的 PPT 像椰树椰汁。", scores: { art: 2, logic: 0, global: 0 } },
+                { text: "C. 消失人口。只有答辩那天才会出现。", scores: { art: 0, logic: 2, global: 0 } },
+                { text: "D. 也就是我本人，我只想抱大腿。", scores: { art: 0, logic: 0, global: -1 } }
             ]
         },
         {
-            q: "Q6. 看到“五颜六色的黑”这种需求，你的第一反应？",
+            q: "Q6. 在做作品集 (Portfolio) 的“设计说明”时，你通常怎么写？",
             options: [
-                { text: "A. 傻X甲方/导师。截个图发朋友圈吐槽。", scores: { art: 1, logic: 0, global: 0 } },
-                { text: "B. 思考镭射材质 (Holographic) 是否能满足这个需求。", scores: { art: 2, logic: 2, global: 1 } },
-                { text: "C. 直接把黑色改成 C90 M80 Y80 K90，告诉他这是“极夜黑”。", scores: { art: 0, logic: 1, global: 0 } },
-                { text: "D. 试图从符号学角度分析这句话背后的文化矛盾。", scores: { art: 1, logic: 0, global: 4 } }
+                { text: "A. 瞎编。“这个圆代表了宇宙的混沌与秩序...”", scores: { art: 2, logic: 0, global: 1 } },
+                { text: "B. 实话实说。“觉得好看就这么画了。”", scores: { art: 3, logic: -1, global: -2 } },
+                { text: "C. 引用哲学术语，什么“解构”、“后人类”、“拟像”。", scores: { art: 1, logic: 0, global: 5 } },
+                { text: "D. 逻辑清晰：背景-调研-痛点-解决方案。", scores: { art: 0, logic: 4, global: 2 } }
             ]
         },
         {
-            q: "Q7. 你对 AI (Midjourney/Stable Diffusion) 的看法？",
+            q: "Q7. 面对 AI (Midjourney/Stable Diffusion)，你的心态是？",
             options: [
-                { text: "A. 它是我的外挂。用来生成素材简直不要太爽。", scores: { art: 1, logic: 3, global: 0 } },
-                { text: "B. 它是没有灵魂的缝合怪，坚决抵制！", scores: { art: 4, logic: 0, global: 1 } },
-                { text: "C. 已经在学怎么训练 LoRA 了，打不过就加入。", scores: { art: 0, logic: 4, global: 2 } },
-                { text: "D. 无所谓，反正它还没学会改“放大一点同时缩小一点”。", scores: { art: 0, logic: 1, global: -1 } }
+                { text: "A. 偷懒神器！作业素材全靠它生成。", scores: { art: 0, logic: 2, global: -1 } },
+                { text: "B. 焦虑。感觉还没毕业就要失业了。", scores: { art: 1, logic: 0, global: 0 } },
+                { text: "C. 兴奋。正在研究怎么用 AI 辅助我的毕设。", scores: { art: 0, logic: 3, global: 2 } },
+                { text: "D. 鄙视。这种拼贴缝合怪没有灵魂。", scores: { art: 4, logic: 0, global: 1 } }
             ]
         },
         {
-            q: "Q8. 【深造判定】面对一篇全是英文的《设计哲学与后现代主义》论文：",
+            q: "Q8. 【深造判定】如果给你机会去国外顶尖院校 (RCA/UAL) 交换一年：",
             options: [
-                { text: "A. 居然读得津津有味，觉得很有深度。", scores: { art: 1, logic: 0, global: 5 } },
-                { text: "B. 直接丢给 GPT 让它总结成 3 句人话。", scores: { art: 0, logic: 3, global: 1 } },
-                { text: "C. 看了两眼就困了，还是打开 Pinterest 看图爽。", scores: { art: 3, logic: 0, global: -2 } },
-                { text: "D. 觉得都是扯淡，不如教我两个实用的 PS 快捷键。", scores: { art: 0, logic: 1, global: -3 } }
+                { text: "A. 必须去！就算卖肾也要去看看外面的世界。", scores: { art: 1, logic: 0, global: 6 } },
+                { text: "B. 不去。国外不安全，而且好贵，不如在国内实习。", scores: { art: 0, logic: 2, global: -3 } },
+                { text: "C. 如果能帮我镀金，回来好进大厂，我就去。", scores: { art: 0, logic: 3, global: 0 } },
+                { text: "D. 去旅游还可以，去读书就算了，雅思太难考。", scores: { art: 1, logic: 0, global: -1 } }
             ]
         },
         {
-            q: "Q9. 做设计时，你最痛恨的事情是？",
+            q: "Q9. 做 UI 界面作业时，你对“像素对齐”的态度是？",
             options: [
-                { text: "A. 字体缺失 / 图片链接丢失。", scores: { art: 1, logic: 2, global: 0 } },
-                { text: "B. 别人站在我背后指指点点：“这里左移一像素”。", scores: { art: 2, logic: 0, global: 0 } },
-                { text: "C. 没有任何需求文档，让我“看着办”。", scores: { art: 0, logic: 3, global: 0 } },
-                { text: "D. 让我把一张 20kb 的 jpg 放大做喷绘。", scores: { art: 0, logic: 2, global: -1 } }
+                { text: "A. 必须完美对齐！间距必须是 4 或 8 的倍数！", scores: { art: 0, logic: 5, global: 0 } },
+                { text: "B. 差不多得了，肉眼看不出来就行。", scores: { art: 2, logic: -1, global: 0 } },
+                { text: "C. 我做的是概念设计，不需要对齐，要的是氛围。", scores: { art: 3, logic: 0, global: 2 } },
+                { text: "D. 全程用自动布局 (Auto Layout)，根本不需要手动对。", scores: { art: 0, logic: 4, global: 1 } }
             ]
         },
         {
-            q: "Q10. 如果不做设计师了，你最想去做什么？",
+            q: "Q10. 熬夜画图时的续命饮料是？",
             options: [
-                { text: "A. 摆摊卖淀粉肠 / 开个咖啡店。", scores: { art: 1, logic: 0, global: -1 } },
-                { text: "B. 考公 / 考编，宇宙的尽头是编制。", scores: { art: -1, logic: 1, global: -2 } },
-                { text: "C. 当个独立艺术家，办展，卖画。", scores: { art: 5, logic: 0, global: 2 } },
-                { text: "D. 去学校当老师，或者做学术研究。", scores: { art: 1, logic: 1, global: 5 } }
+                { text: "A. 冰美式 (血液里流淌着咖啡)。", scores: { art: 1, logic: 1, global: 1 } },
+                { text: "B. 奶茶 (全糖，为了快乐)。", scores: { art: 2, logic: 0, global: 0 } },
+                { text: "C. 红牛/东鹏特饮 (为了活着)。", scores: { art: 0, logic: 2, global: -1 } },
+                { text: "D. 养生茶/白开水 (因为怕猝死)。", scores: { art: 0, logic: 1, global: 0 } }
             ]
         },
         {
-            q: "Q11. 在你的作品集里，你更倾向于展示？",
+            q: "Q11. 看到那种“新丑风 (New Ugly)”或“酸性设计”海报，你会？",
             options: [
-                { text: "A. 极具视觉冲击力的大图，文字尽量少。", scores: { art: 4, logic: -1, global: 0 } },
-                { text: "B. 完整的推导过程：调研-草图-线框图-成品。", scores: { art: 0, logic: 4, global: 1 } },
-                { text: "C. 充满实验性的概念设计，哪怕看不懂是啥。", scores: { art: 2, logic: 0, global: 4 } },
-                { text: "D. 已经上线落地的商业项目，数据很好看。", scores: { art: 0, logic: 3, global: -1 } }
+                { text: "A. 欣赏不来，感觉像软件乱码了。", scores: { art: 0, logic: 2, global: -1 } },
+                { text: "B. 太酷了！我也想试试这种离经叛道的风格。", scores: { art: 3, logic: -1, global: 2 } },
+                { text: "C. 分析它的版式结构，觉得是对此前极简风的反叛。", scores: { art: 1, logic: 1, global: 4 } },
+                { text: "D. 只有做个人作业才敢这么搞，给老师看会被骂死。", scores: { art: 1, logic: 1, global: 0 } }
             ]
         },
         {
-            q: "Q12. 关于“字体拉伸” (把文字强行压扁或拉长)：",
+            q: "Q12. 临近毕业，你最理想的去向是？",
             options: [
-                { text: "A. 死罪！这是对字体设计师的侮辱！", scores: { art: 0, logic: 3, global: 1 } },
-                { text: "B. 现在流行 Acid Design (酸性设计)，拉伸才是潮。", scores: { art: 3, logic: 0, global: 1 } },
-                { text: "C. 只要排版需要，拉一点点也没人发现吧？", scores: { art: 1, logic: 0, global: -1 } },
-                { text: "D. 甲方非要塞那么多字，不压扁放不下啊。", scores: { art: 0, logic: 1, global: -2 } }
+                { text: "A. 进互联网大厂做 UI/UX，年薪 30w+。", scores: { art: 0, logic: 4, global: -1 } },
+                { text: "B. 出国深造，读个 MFA，走学术或艺术家路线。", scores: { art: 1, logic: 0, global: 5 } },
+                { text: "C. 考编/考公/当老师，稳定压倒一切。", scores: { art: -1, logic: 1, global: -3 } },
+                { text: "D. 自由职业/数字游民，一边旅游一边接单。", scores: { art: 4, logic: 0, global: 1 } }
             ]
         },
         {
-            q: "Q13. 周五下午 5:59，你正准备关机，群里弹出一句“在吗”：",
+            q: "Q13. 老师说：“这张图感觉不对，再改改。” 你会？",
             options: [
-                { text: "A. 假装没看见，飞速关机逃离现场。", scores: { art: 1, logic: 0, global: -1 } },
-                { text: "B. 回复“？” (极度高冷)。", scores: { art: 2, logic: 0, global: 0 } },
-                { text: "C. 回复“稍等，我看一下”，然后又加了2小时班。", scores: { art: 0, logic: 2, global: -1 } },
-                { text: "D. 直接打语音过去问清楚，避免无意义的打字拉扯。", scores: { art: 0, logic: 3, global: 1 } }
+                { text: "A. “好的老师。” (回去根本没改，第二天再发给他)", scores: { art: 1, logic: 1, global: -1 } },
+                { text: "B. 追问：“具体哪里不对？构图？色彩？还是字体？”", scores: { art: 0, logic: 3, global: 1 } },
+                { text: "C. 焦虑地改了一通宵，改出了 10 个版本。", scores: { art: 1, logic: 0, global: 0 } },
+                { text: "D. 试图用设计理论说服老师，证明我是对的。", scores: { art: 2, logic: 1, global: 3 } }
             ]
         },
         {
-            q: "Q14. 你觉得“设计”的本质是？",
+            q: "Q14. 你认为学视觉传达，最重要的能力是？",
             options: [
-                { text: "A. 解决问题。不好用的设计就是垃圾。", scores: { art: 0, logic: 5, global: 1 } },
-                { text: "B. 表达自我。设计是灵魂的延伸。", scores: { art: 5, logic: -1, global: 1 } },
-                { text: "C. 服务商业。能卖货的才是好设计。", scores: { art: 0, logic: 2, global: -2 } },
-                { text: "D. 改变社会。设计应该让世界变得更好。", scores: { art: 2, logic: 1, global: 5 } }
+                { text: "A. 审美天赋。没天赋再努力也没用。", scores: { art: 4, logic: -1, global: 1 } },
+                { text: "B. 软件技术。C4D、AE 玩得溜才是王道。", scores: { art: 0, logic: 3, global: -1 } },
+                { text: "C. 逻辑思维。能发现问题并解决问题。", scores: { art: 0, logic: 4, global: 1 } },
+                { text: "D. 讲故事的能力 (Storytelling)。", scores: { art: 2, logic: 0, global: 3 } }
             ]
         },
         {
-            q: "Q15. 最后，如果让你用一个词形容你的状态：",
+            q: "Q15. 最后，如果下辈子还让你选专业，你选？",
             options: [
-                { text: "A. 累丑 (Exhausted but Fabulous)。", scores: { art: 1, logic: 0, global: -1 } },
-                { text: "B. 像素眼 (Pixel Eye) - 看什么都自动对齐。", scores: { art: 0, logic: 3, global: 0 } },
-                { text: "C. 赛博民工 (Cyber Peasant)。", scores: { art: 0, logic: 1, global: -2 } },
-                { text: "D. 探索者 (Explorer)。", scores: { art: 1, logic: 1, global: 2 } }
+                { text: "A. 狗都不学设计。我要学计算机/金融。", scores: { art: 0, logic: 1, global: -2 } },
+                { text: "B. 还是会学设计，因为我除了画画啥也不会。", scores: { art: 4, logic: 0, global: 1 } },
+                { text: "C. 想学纯艺术 (Fine Art)，彻底放飞自我。", scores: { art: 3, logic: -1, global: 4 } },
+                { text: "D. 学心理学或社会学，做用户研究。", scores: { art: 0, logic: 3, global: 3 } }
             ]
         }
     ];
@@ -412,7 +358,7 @@
     let currentStep = 0;
     let scores = { art: 0, logic: 0, global: 0 };
 
-    function startLoadingSequence() {
+    function startLoading() {
         document.getElementById('view-welcome').style.display = 'none';
         const loadingDiv = document.getElementById('view-loading');
         loadingDiv.style.display = 'block';
@@ -420,17 +366,14 @@
         let lineIndex = 0;
         
         function addLine() {
-            if (lineIndex < loadingLines.length) {
+            if (lineIndex < logs.length) {
                 const p = document.createElement('div');
-                p.className = 'terminal-line';
-                let text = loadingLines[lineIndex];
-                text = text.replace(/(Error|无响应|打死不改|98%)/g, '<span class="error-text">$1</span>');
-                text = text.replace(/(Adobe|Behance|GPT)/g, '<span class="highlight">$1</span>');
-                p.innerHTML = `> ${text}`;
+                p.className = 'log-line';
+                p.innerText = "> " + logs[lineIndex];
                 loadingDiv.appendChild(p);
                 loadingDiv.scrollTop = loadingDiv.scrollHeight;
                 lineIndex++;
-                setTimeout(addLine, Math.random() * 400 + 200); 
+                setTimeout(addLine, Math.random() * 300 + 200); 
             } else {
                 setTimeout(startQuiz, 800);
             }
@@ -447,13 +390,13 @@
     function renderQuestion() {
         const qData = questions[currentStep];
         
+        // 进度
         const percent = ((currentStep) / questions.length) * 100;
         document.getElementById('progress').style.width = percent + '%';
         
-        document.getElementById('q-num').innerText = currentStep + 1;
+        document.getElementById('q-num').innerText = (currentStep + 1).toString().padStart(2, '0');
         document.getElementById('q-text').innerText = qData.q;
         
-        // 生成选项
         const optionsHtml = qData.options.map((opt, idx) => `
             <div class="option-card" onclick="selectOption(${idx})">
                 ${opt.text}
@@ -474,76 +417,59 @@
             document.getElementById('progress').style.width = '100%';
             showResult();
         } else {
-            // 简单的淡入淡出
-            const container = document.getElementById('view-quiz');
-            container.style.opacity = 0.5;
-            setTimeout(() => {
-                renderQuestion();
-                container.style.opacity = 1;
-            }, 200);
+            renderQuestion();
         }
     }
 
-    // --- 15题版 结果算法 (阈值调整) ---
+    // --- 结果计算 (学生版逻辑) ---
     function showResult() {
         document.getElementById('view-quiz').style.display = 'none';
         document.getElementById('view-result').style.display = 'block';
 
-        let rType, rTitle, rDesc, rIcon, rAbroad;
+        let rType, rTitle, rDesc, rAbroad;
 
-        // 调试查看分数
-        console.log(scores);
-
-        // 判定顺序：先看是否适合深造 (Global)，再看性格类型 (Art vs Logic)
-
-        // 1. 深造/理论大神 (Global >= 16)
-        if (scores.global >= 16) {
-            rType = "THE PHILOSOPHER";
-            rTitle = "思辨设计哲学家";
-            rIcon = "🧠";
-            rDesc = "你对'设计'的理解已经超越了视觉层面。你关注社会议题、抽象概念和设计伦理。国内快节奏、商业化的环境（无论是学校还是公司）都在消耗你的灵气。你属于 RCA, UAL, RISD 这样的顶级艺术殿堂。";
-            rAbroad = "✈️ <strong>深造建议：必须出国！</strong><br>别犹豫了，你的灵魂属于学术界。去读个 MFA，你会发现新世界。";
+        // 1. 学术/深造大神 (Global >= 18)
+        if (scores.global >= 18) {
+            rType = "THE ACADEMIC";
+            rTitle = "学院派·思辨哲学家";
+            rDesc = "你可能是全班唯一认真听《设计史》的人。你关注设计的社会意义多过视觉表现。国内的功利教育环境真的委屈你了。你天生适合去 RCA, UAL 或 耶鲁 读研，研究那些听起来很玄乎但很高级的课题。";
+            rAbroad = "✈️ <strong>深造建议：必须出国！</strong> 国内环境容不下你的脑洞。快去准备作品集吧！";
         }
         
-        // 2. 极致逻辑/秩序狂 (Logic > Art + 6)
-        else if (scores.logic > scores.art + 6) {
-            rType = "SYSTEM ARCHITECT";
-            rTitle = "像素秩序建筑师";
-            rIcon = "📐";
-            rDesc = "你是混乱终结者。你痛恨没有对齐的像素和混乱的图层。你更像是一个拥有好审美的工程师。你天生适合做 UI/UX、B端产品、Design System。你是大厂最需要的'靠谱'人才。";
-            rAbroad = "💼 <strong>深造建议：就业导向。</strong><br>除非去学 HCI (人机交互) 这种硬核专业，否则没必要为了学历出国，大厂实战更适合你。";
+        // 2. 卷王/UI大厂预备役 (Logic > Art + 5)
+        else if (scores.logic > scores.art + 5) {
+            rType = "THE SYSTEMIZER";
+            rTitle = "像素秩序·大厂卷王";
+            rDesc = "你是小组作业的大腿，文件管理的洁癖患者。你痛恨乱七八糟的图层。你非常适合做 UI/UX 或 B端产品设计。你的未来在互联网大厂，年薪可观，虽然头发可能保不住。";
+            rAbroad = "💼 <strong>深造建议：以就业为导向。</strong> 除非去美国学 HCI (人机交互)，否则不如直接去大厂实习。";
         }
 
-        // 3. 极致艺术/感性怪 (Art > Logic + 6)
-        else if (scores.art > scores.logic + 6) {
-            rType = "VISUAL POET";
-            rTitle = "野生视觉造梦师";
-            rIcon = "🎨";
-            rDesc = "逻辑对你来说是枷锁。你靠直觉、天赋和情绪做设计。你可能经常把文件搞丢，或者从来不按规范命名，但你的作品总能击中人心。不要去枯燥的大厂做螺丝钉，去画画、做动效、做独立品牌吧！";
-            rAbroad = "🌍 <strong>深造建议：看城市气质。</strong><br>去柏林、伦敦这种艺术氛围浓厚的地方游学，或者直接做自由职业者 (Digital Nomad)。";
+        // 3. 野生艺术家 (Art > Logic + 5)
+        else if (scores.art > scores.logic + 5) {
+            rType = "THE ARTIST";
+            rTitle = "野生天才·偏科战神";
+            rDesc = "你经常迟到，作业经常踩点交，但你的作品总能让老师眼前一亮。你靠直觉做设计，逻辑对你来说是枷锁。别去大厂做螺丝钉，去画插画、做动态视觉、或者搞独立品牌吧！";
+            rAbroad = "🌍 <strong>深造建议：看城市氛围。</strong> 适合去伦敦、柏林这种艺术氛围浓厚的地方游学。";
         }
 
-        // 4. 现实主义/搞钱第一 (Global <= -3)
+        // 4. 现实主义者/想转行 (Global <= -3)
         else if (scores.global <= -3) {
-            rType = "THE PRAGMATIST";
-            rTitle = "人间清醒·甲方杀手";
-            rIcon = "💰";
-            rDesc = "你早就看透了：设计就是一种服务。你不会为了'艺术追求'跟自己过不去，也不会为了'改变世界'而熬夜。你追求高效、稳定和变现。你是在这个行业里活得最滋润、最不内耗的人。";
-            rAbroad = "🙅 <strong>深造建议：大可不必。</strong><br>把学费省下来买房、理财或者创业吧。学历对你的生存能力加成不大。";
+            rType = "THE REALIST";
+            rTitle = "人间清醒·想转行";
+            rDesc = "你早就看透了设计专业的坑：熬夜多、钱少、甲方事多。你学设计可能纯属误会。你现在只想搞钱，或者考个编制上岸。你可能是班里活得最通透的人。";
+            rAbroad = "🙅 <strong>深造建议：大可不必。</strong> 别浪费钱读水硕了，省下钱来理财或考公吧。";
         }
 
         // 5. 六边形战士 (默认)
         else {
-            rType = "FULL-STACK CREATIVE";
-            rTitle = "全能六边形战士";
-            rIcon = "🦄";
-            rDesc = "你的左右脑进化得非常平衡。你既能写出逻辑严密的文档，又能画出好看的图；既能跟开发吵架，又能跟甲方谈笑风生。你是天生的 Art Director 或 产品负责人苗子。";
-            rAbroad = "🎓 <strong>深造建议：镀金策略。</strong><br>出国对你来说是锦上添花。建议去名校读个短平快的项目，提升 Title 和眼界即可。";
+            rType = "THE ALL-ROUNDER";
+            rTitle = "六边形战士·保研苗子";
+            rDesc = "你的综测分应该挺高的。你既能画图，又能写论文，还能做 Pre。你是老师眼中的好学生。你的适应力很强，无论去哪里都能混得不错。";
+            rAbroad = "🎓 <strong>深造建议：镀金策略。</strong> 出国对你来说是锦上添花，去个名校提升一下背景即可。";
         }
 
         document.getElementById('res-type').innerText = rType;
         document.getElementById('res-title').innerText = rTitle;
-        document.getElementById('res-icon').innerText = rIcon;
         document.getElementById('res-desc').innerHTML = rDesc;
         document.getElementById('res-abroad').innerHTML = rAbroad;
     }
